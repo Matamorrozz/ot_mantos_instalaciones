@@ -361,8 +361,11 @@ const Tecnicos = () => {
                 <MenuItem value="Instalación">Instalación</MenuItem>
                 <MenuItem value="Capacitación">Capacitación</MenuItem>
                 <MenuItem value="Instalación/Capacitación">Instalación/Capacitación</MenuItem>
+                <MenuItem value="Mantenimiento Básico">Mantenimiento Básico</MenuItem>
                 <MenuItem value="Mantenimiento Estándar">Mantenimiento Estándar</MenuItem>
                 <MenuItem value="Mantenimiento Completo">Mantenimiento Completo</MenuItem>
+                <MenuItem value="Mantenimiento Correctivo">Mantenimiento Correctivo</MenuItem>
+                <MenuItem value="Ensamble">Ensamble</MenuItem>
               </Select>
             </FormControl>
           </div>
