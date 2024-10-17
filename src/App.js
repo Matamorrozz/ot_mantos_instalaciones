@@ -13,13 +13,13 @@ import {
 } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes, Link as RouterLink, Navigate, useNavigate } from 'react-router-dom';
 import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
-import Home from './codigo/home';
+import Home from './codigo/homeYlogin/home';
 import ActivityPage from './codigo/actividadespage';
 import PlanTrabajoPage from './codigo/planes_trabajo';
 import Tecnicos from './codigo/tecnicos';
 import OrdenesTrabajoList from './codigo/ordenes_trabajo';
 import DetalleOrdenTrabajo from './codigo/detalle_orden';
-import Login from './codigo/login';
+import Login from './codigo/homeYlogin/login';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './codigo/protected_route';
 import { onAuthStateChanged, signOut } from 'firebase/auth';

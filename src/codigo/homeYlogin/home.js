@@ -4,9 +4,9 @@ import {
   Table, TableBody, TableCell, TableContainer, 
   TableHead, TableRow, Paper, Pagination, CircularProgress
 } from '@mui/material';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { auth } from '../firebase/firebase-config';
+import { auth } from '../../firebase/firebase-config';
 import { signOut } from "firebase/auth";
 import axios from 'axios';
 
