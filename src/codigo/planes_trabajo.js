@@ -256,6 +256,7 @@ function PlanTrabajoPage() {
                                 <MenuItem value="Trimestral">Trimestral</MenuItem>
                                 <MenuItem value="Cuatrimestral">Cuatrimestral</MenuItem>
                                 <MenuItem value="Semestral">Semestral</MenuItem>
+                                <MenuItem value="Octomestral">Octomestral</MenuItem>
                                 <MenuItem value="Anual">Anual</MenuItem>
                                 <MenuItem value="No Aplica">No Aplica</MenuItem>
                             </Select>
@@ -439,6 +440,7 @@ function PlanTrabajoPage() {
                                 >
                                     <MenuItem value="Trimestral">Trimestral</MenuItem>
                                     <MenuItem value="Semestral">Semestral</MenuItem>
+                                    <MenuItem value="Octomestral">Octomestral</MenuItem>
                                     <MenuItem value="Anual">Anual</MenuItem>
                                     <MenuItem value="No Aplica">No Aplica</MenuItem>
                                 </Select>
