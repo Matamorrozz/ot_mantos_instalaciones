@@ -102,7 +102,7 @@ const DetalleOrdenTrabajo = () => {
         </Card>
       </Grid2>
 
-      <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
+  <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
         <TableContainer component={Paper}>
           <Table>
             <TableHead>
