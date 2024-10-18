@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Button, MenuItem, Select, FormControl, InputLabel, Typography, Snackbar, Alert } from '@mui/material';
+import { Button, MenuItem, Select, FormControl, InputLabel, Typography, Snackbar, Alert, TextField } from '@mui/material';
 import { Build, Visibility, Done, CleaningServices, SwapHoriz, EngineeringOutlined } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 
@@ -126,7 +126,7 @@ const TecnicoDropZone = ({ tecnicoAsignado, moveActivity, removeActivity }) => {
           marginBottom: '20px'
         }}
       >
-        Orden de Servicio
+        Orden de Trabajo
       </Typography>
 
       <div
@@ -166,14 +166,13 @@ const TecnicoDropZone = ({ tecnicoAsignado, moveActivity, removeActivity }) => {
 };
 
 const Tecnicos = () => {
-  const [activities, setActivities] = useState([]);
-  const [tecnicos, setTecnicos] = useState([]);
-  const [selectedTecnico, setSelectedTecnico] = useState('');
+  const [titulo, setTitulo] = useState('');
   const [tecnicoAsignado, setTecnicoAsignado] = useState({ items: [] });
   const [familiaSeleccionada, setFamiliaSeleccionada] = useState('');
   const [maquinas, setMaquinas] = useState([]);
   const [maquinaSeleccionada, setMaquinaSeleccionada] = useState('');
   const [tipoServicio, setTipoServicio] = useState('');
+  const [plazo, setPlazo] = useState('');
   const [workOrders, setWorkOrders] = useState([]); // Almacena las órdenes de trabajo obtenidas
   const [errorMessage, setErrorMessage] = useState(''); // Estado para mostrar el mensaje de error
   const [openSnackbar, setOpenSnackbar] = useState(false); // Control del Snackbar
@@ -198,11 +197,11 @@ const Tecnicos = () => {
   }, [familiaSeleccionada]);
 
   useEffect(() => {
-    if (familiaSeleccionada && maquinaSeleccionada && tipoServicio) {
+    if (familiaSeleccionada && maquinaSeleccionada && tipoServicio && plazo) {
       const fetchWorkOrders = async () => {
         try {
           const response = await fetch(
-            `https://teknia.app/api3/obtener_planes_trabajo/${familiaSeleccionada}/${maquinaSeleccionada}/${tipoServicio}`
+            `https://teknia.app/api3/obtener_planes_trabajo/${familiaSeleccionada}/${maquinaSeleccionada}/${tipoServicio}/${plazo}`
           );
           const data = await response.json();
           setWorkOrders(data); // Asegúrate de que `data` es un array antes de establecerlo en el estado
@@ -213,7 +212,7 @@ const Tecnicos = () => {
 
       fetchWorkOrders();
     }
-  }, [familiaSeleccionada, maquinaSeleccionada, tipoServicio]);
+  }, [familiaSeleccionada, maquinaSeleccionada, tipoServicio, plazo]);
 
   const moveActivity = (sourceIndex, destinationIndex, origin) => {
     if (origin === 'activities') {
@@ -315,12 +314,22 @@ const Tecnicos = () => {
           <div style={{ padding: "5px" }}></div>
           <div style={{ padding: "5px" }}>
             <FormControl fullWidth>
+              <TextField
+                  label="Titulo"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  fullWidth
+                  sx={{ mb: 2 }}
+              />
+            </FormControl>
+            <FormControl fullWidth>
               <InputLabel style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}>Selecciona una familia</InputLabel>
               <Select
                 value={familiaSeleccionada}
                 onChange={(e) => setFamiliaSeleccionada(e.target.value)}
                 label="Selecciona una familia"
                 style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}
+                sx={{ mb: 2 }}
               >
                 {['Router', 'Láser Co2', 'Láser Fibra Óptica', 'Plasma', 'Dobladora', 'Grua Neumática', 'Externa'].map((familia) => (
                   <MenuItem key={familia} value={familia}>
@@ -367,6 +376,20 @@ const Tecnicos = () => {
                 <MenuItem value="Mantenimiento Correctivo">Mantenimiento Correctivo</MenuItem>
                 <MenuItem value="Ensamble">Ensamble</MenuItem>
               </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+                <InputLabel>Plazo de Servicio</InputLabel>
+                <Select
+                    value={plazo}
+                    onChange={(e) => setPlazo(e.target.value)}
+                    >
+                    <MenuItem value="Trimestral">Trimestral</MenuItem>
+                    <MenuItem value="Cuatrimestral">Cuatrimestral</MenuItem>
+                    <MenuItem value="Semestral">Semestral</MenuItem>
+                    <MenuItem value="Anual">Anual</MenuItem>
+                    <MenuItem value="No Aplica">No Aplica</MenuItem>
+                </Select>
             </FormControl>
           </div>
 

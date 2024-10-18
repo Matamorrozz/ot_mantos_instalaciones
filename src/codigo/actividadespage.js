@@ -268,7 +268,7 @@ function ActivityPage() {
                             Clasificación
                           </TableSortLabel>
                         </TableCell>
-                        <TableCell>Tiempo (hrs)</TableCell>
+                        <TableCell>Tiempo (min)</TableCell>
                         <TableCell>Acciones</TableCell>
                         </TableRow>
                     </TableHead>

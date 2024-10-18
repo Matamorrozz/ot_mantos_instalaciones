@@ -34,6 +34,7 @@ const OrdenesTrabajoList = () => {
         <TableHead>
           <TableRow>
             <TableCell>ID</TableCell>
+            <TableCell>Titulo</TableCell>
             <TableCell>Nombre Persona</TableCell>
             <TableCell>Correo</TableCell>
             <TableCell>Fecha Creación</TableCell>
@@ -44,6 +45,7 @@ const OrdenesTrabajoList = () => {
           {ordenes.map((orden) => (
             <TableRow key={orden.id}>
               <TableCell>{orden.id}</TableCell>
+              <TableCell>{orden.titulo}</TableCell>
               <TableCell>{orden.nombre_persona}</TableCell>
               <TableCell>{orden.correo_persona}</TableCell>
               <TableCell>{new Date(orden.fecha_creacion).toLocaleString()}</TableCell>
