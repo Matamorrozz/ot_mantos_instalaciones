@@ -197,6 +197,15 @@ function ActivityPage() {
                     <MenuItem value="Sustitución Temporal">
                       Sustitución Temporal
                     </MenuItem>
+                    <MenuItem value="Configuración">
+                      Configuración
+                    </MenuItem>
+                    <MenuItem value="Proceso de Ensamble">
+                      Proceso de Ensamble
+                    </MenuItem>
+                    <MenuItem value="Desempaque">
+                      Desempaque
+                    </MenuItem>
                 </Select>
                 <TextField
                   label="Tiempo Estimado (hrs)"
@@ -359,6 +368,15 @@ function ActivityPage() {
                 </MenuItem>
                 <MenuItem value="Sustitución Temporal">
                   Sustitución Temporal
+                </MenuItem>
+                <MenuItem value="Configuración">
+                  Configuración
+                </MenuItem>
+                <MenuItem value="Proceso de Ensamble">
+                  Proceso de Ensamble
+                </MenuItem>
+                <MenuItem value="Desempaque">
+                  Desempaque
                 </MenuItem>
             </Select>
             <TextField

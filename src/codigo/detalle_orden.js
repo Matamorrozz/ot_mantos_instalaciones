@@ -26,34 +26,34 @@ const DetalleOrdenTrabajo = () => {
           `https://teknia.app/api3/obtener_planes_trabajo_por_orden/${numeroOrden}`
         );
         setPlanesTrabajo(response.data);
-
+  
         const sumaTiempo = response.data.reduce((acc, plan) => acc + +plan.tiempo_estimado, 0);
         setTiempoTotal(sumaTiempo);
-
+  
         const ordenResponse = await axios.get(
           `https://teknia.app/api3/obtener_orden_trabajo/${numeroOrden}`
         );
         setOrdenTrabajo(ordenResponse.data);
+  
+        // Usar la primera familia como ejemplo
+        const response2 = await axios.get(`https://teknia.app/api/reservas_agendadas_orden/${response.data[0]?.familia}`);
+        setReservas(response2.data);
       } catch (error) {
         console.error('Error al cargar los datos:', error);
       }
     };
-
-    const fetchReservas = async () => {
-      try {
-        const response = await axios.get('https://teknia.app/api/reservas_agendadas/');
-        setReservas(response.data);
-      } catch (error) {
-        console.error('Error al cargar las reservas:', error);
-      }
-    };
-
+  
     fetchPlanesTrabajo();
-    fetchReservas();
   }, [numeroOrden]);
 
   // Manejar la asignación de la orden y mostrar datos en consola
-  const handleAsignarOrden = () => {
+  const handleAsignarOrden = async () => {
+    const reservaInfo = findById(reservas, reservaSeleccionada);
+    if (!reservaInfo) {
+      console.error("Reserva no encontrada");
+      return;
+    }
+  
     const datosOrden = {
       titulo,
       prioridad,
@@ -62,10 +62,51 @@ const DetalleOrdenTrabajo = () => {
       ordenNumero: numeroOrden,
       tiempoTotal,
       creadoPor: ordenTrabajo.nombre_persona,
-      fechaCreacion: ordenTrabajo.fecha_creacion,
+      familia: planesTrabajo[0]?.familia || "Sin familia",
+      maquina: planesTrabajo[0]?.maquina || "Sin máquina",
+      ...reservaInfo, // Agrega todas las propiedades de reservaInfo
     };
-
+  
     console.log("Datos para enviar a la API:", datosOrden);
+  
+    try {
+      const response = await axios.post('https://teknia.app/api/orden_agendada', datosOrden);
+      console.log("Respuesta del servidor:", response.data);
+      alert("Guardado correctamente");
+    } catch (error) {
+      console.error("Error al enviar los datos a la API:", error);
+    }
+  };
+
+  // Función para buscar por id y retornar los datos de la reserva
+  const findById = (array, id) => {
+    const foundItem = array.find(item => item.id === id);
+    if (!foundItem) return null;
+
+    // Retorna solo las propiedades relevantes
+    const {
+      razon_social,
+      username,
+      email,
+      contacto,
+      correo_cliente,
+      modelo,
+      no_serie,
+      tecnico_asignado,
+      correo_tecnico_asignado,
+    } = foundItem;
+
+    return {
+      razon_social,
+      username,
+      email,
+      contacto,
+      correo_cliente,
+      modelo,
+      no_serie,
+      tecnico_asignado,
+      correo_tecnico_asignado,
+    };
   };
 
   const isButtonDisabled = !titulo || !prioridad || !reservaSeleccionada || !fechaEstimada;
@@ -100,41 +141,6 @@ const DetalleOrdenTrabajo = () => {
             </Grid2>
           </Grid2>
         </Card>
-      </Grid2>
-
-  <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Posición</TableCell>
-                <TableCell>Código</TableCell>
-                <TableCell>Título</TableCell>
-                <TableCell>Objetivo</TableCell>
-                <TableCell>Clasificación</TableCell>
-                <TableCell>Tiempo Estimado (min)</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {planesTrabajo.map((plan) => (
-                <TableRow key={plan.id}>
-                  <TableCell>{plan.posicion}</TableCell>
-                  <TableCell>{plan.codigo}</TableCell>
-                  <TableCell>{plan.titulo}</TableCell>
-                  <TableCell>{plan.objetivo}</TableCell>
-                  <TableCell>{plan.clasificacion}</TableCell>
-                  <TableCell><strong>{plan.tiempo_estimado} min</strong></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Grid2>
-
-      <Grid2 size={{ xs: 12, md: 8 }} sx={{ mt: 2 }} style={{ padding: 10 }}>
-        <Typography variant="h6" align="center">
-          Tiempo Total Estimado : {tiempoTotal +' min'}
-        </Typography>
       </Grid2>
 
       <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
@@ -198,6 +204,41 @@ const DetalleOrdenTrabajo = () => {
           Asignar Orden
         </Button>
       </Grid2>
+
+      <Grid2 size={{ xs: 12, md: 8 }} sx={{ mt: 2 }} style={{ padding: 10 }}>
+        <Typography variant="h6" align="center">
+          Tiempo Total Estimado : {tiempoTotal +' min'}
+        </Typography>
+      </Grid2>
+
+  <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Posición</TableCell>
+                <TableCell>Código</TableCell>
+                <TableCell>Título</TableCell>
+                <TableCell>Objetivo</TableCell>
+                <TableCell>Clasificación</TableCell>
+                <TableCell>Tiempo Estimado (min)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {planesTrabajo.map((plan) => (
+                <TableRow key={plan.id}>
+                  <TableCell>{plan.posicion}</TableCell>
+                  <TableCell>{plan.codigo}</TableCell>
+                  <TableCell>{plan.titulo}</TableCell>
+                  <TableCell>{plan.objetivo}</TableCell>
+                  <TableCell>{plan.clasificacion}</TableCell>
+                  <TableCell><strong>{plan.tiempo_estimado} min</strong></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid2>      
     </>
   );
 };

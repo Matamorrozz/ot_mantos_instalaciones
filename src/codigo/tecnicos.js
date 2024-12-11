@@ -264,6 +264,7 @@ const Tecnicos = () => {
           correo_persona: 'developer@asiarobotica.com',  // Reemplaza con el valor correspondiente
           version: 1,
           puede_editar: false,
+          titulo: titulo
         }),
       });
   
