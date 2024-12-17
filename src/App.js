@@ -24,7 +24,8 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './codigo/protected_route';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase/firebase-config';
-
+import PlantelProduccion from './codigo/plantel_produccion';
+import DetalleOrdenPorduccion from './codigo/detalle_orden_produccion';
 function LogoutButton() {
   const navigate = useNavigate(); 
 
@@ -183,6 +184,15 @@ function App() {
                   >
                     ORDENES
                   </Link>
+                  <Link
+                    component={RouterLink}
+                    to="/plantel_produccion"
+                    color="inherit"
+                    style={{ marginRight: '20px', textDecoration: 'none' }}
+                    className="link-appbar"
+                  >
+                    PRODUCCIÓN
+                  </Link>
 
                   <p>Modo Oscuro</p>
                   <Switch checked={darkMode} onChange={handleThemeChange} color="default" />
@@ -199,6 +209,8 @@ function App() {
                 <Route path="/tecnico" element={<PrivateRoute><Tecnicos /></PrivateRoute>} />
                 <Route path="/ordenes_trabajo" element={<PrivateRoute><OrdenesTrabajoList /></PrivateRoute>} />
                 <Route path="/detalle_orden/:numeroOrden" element={<PrivateRoute><DetalleOrdenTrabajo /></PrivateRoute>} />
+                <Route path="/plantel_produccion/" element={<PrivateRoute><PlantelProduccion /></PrivateRoute>} />
+                <Route path="/detalle_orden_produccion/:numeroOrden" element={<PrivateRoute><DetalleOrdenPorduccion /></PrivateRoute>} />
               </Routes>
             </>
           )}

@@ -5,9 +5,11 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
+
 const OrdenesTrabajoList = () => {
   const [ordenes, setOrdenes] = useState([]);
   const navigate = useNavigate();  // Usa useNavigate
+
 
   useEffect(() => {
     // Cargar todas las órdenes de trabajo al montar el componente
