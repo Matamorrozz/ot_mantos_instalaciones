@@ -12,7 +12,8 @@ const API_URL = 'https://teknia.app/api3';
 
 function PlantelProduccion() {
   const { currentUser } = useAuth();
-  const [ordenes, setOrdenes] = useState([]); 
+  const [ordenes, setOrdenes] = useState([]);
+  const [ordenesAgendadas, setOrdenesAgendadas] = useState([]); 
   const [openForm, setOpenForm] = useState(false); 
   const [formData, setFormData] = useState({ id: ''});
   const theme = useTheme();
@@ -21,11 +22,17 @@ function PlantelProduccion() {
   useEffect(() => {
     const fetchOrdenesTrabajo = async () => {
       try {
-        const response = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`);
+        const response = await axios.get(`${API_URL}/obtener_ordenes_trabajo`);
+        const response2 = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`)
+        
         const filteredOrdenes = response.data.filter((orden) =>
-          orden.reserva_id === 0
+          orden.titulo.toLowerCase().includes('ensamble')
         );
+        const filteredOrdenesAgendadas = response2.data.filter((orden) =>
+        orden.reserva_id === 0);
+
         setOrdenes(filteredOrdenes);
+        setOrdenesAgendadas(filteredOrdenesAgendadas)
       } catch (error) {
         console.error('Error al cargar las órdenes de trabajo:', error);
       }
@@ -79,7 +86,7 @@ function PlantelProduccion() {
           </Typography>
 
           <Grid container spacing={2}>
-            {ordenes.map((orden) => (
+            {ordenesAgendadas.map((orden) => (
               <Grid item xs={12} sm={6} md={4} key={orden.id}>
                 <Card
                   variant="outlined"
