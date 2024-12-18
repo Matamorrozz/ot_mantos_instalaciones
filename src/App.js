@@ -26,6 +26,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from './firebase/firebase-config';
 import PlantelProduccion from './codigo/plantel_produccion';
 import DetalleOrdenPorduccion from './codigo/detalle_orden_produccion';
+import TablaOperadores from './codigo/tabla_operadores';
 function LogoutButton() {
   const navigate = useNavigate(); 
 
@@ -135,8 +136,8 @@ function App() {
                     <img src={`/logo_asiarob.png`} alt="Logo" style={{ width: '160px', height: '40px' }} />
                   </IconButton>
 
-                  <Typography variant="h6" style={{ flexGrow: 1 }}>
-                    INSTALACIONES, MANTOS Y REPARACIONES
+                  <Typography variant="h7" style={{ flexGrow: 1 }}>
+                    INSTALACIONES, ENSAMBLAJE, MANTOS Y REPARACIONES
                   </Typography>
 
                   <Link
@@ -211,6 +212,7 @@ function App() {
                 <Route path="/detalle_orden/:numeroOrden" element={<PrivateRoute><DetalleOrdenTrabajo /></PrivateRoute>} />
                 <Route path="/plantel_produccion/" element={<PrivateRoute><PlantelProduccion /></PrivateRoute>} />
                 <Route path="/detalle_orden_produccion/:numeroOrden" element={<PrivateRoute><DetalleOrdenPorduccion /></PrivateRoute>} />
+                <Route path="/tabla_operadores" element={<PrivateRoute><TablaOperadores /></PrivateRoute>} />
               </Routes>
             </>
           )}

@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import {
   Typography, Container, Box, Grid, Card, CardContent, Button, Dialog, DialogActions,
-  DialogContent, DialogTitle, TextField, Select, MenuItem
+  DialogContent, DialogTitle, TextField, Select, MenuItem, Link
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles'; // Para acceder al tema
 import axios from 'axios';
@@ -100,13 +100,13 @@ function PlantelProduccion() {
                       {orden.titulo}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Estación: {orden.estacion}
+                      Operador asignado: {orden.tecnico_asignado}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Descripción: {orden.descripcion}
+                      Equipo: {orden.maquina}
                     </Typography>
                     <Typography variant="body2" color="textSecondary">
-                      Fecha: {new Date(orden.fecha).toLocaleDateString()}
+                      Terminar antes de: {new Date(orden.fecha_estimada).toLocaleDateString()}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -118,7 +118,7 @@ function PlantelProduccion() {
 
       {/* Formulario dentro de un Dialog */}
       <Dialog open={openForm} onClose={handleCloseForm}>
-        <DialogTitle textAlign="center">Asignar Orden</DialogTitle>
+        <DialogTitle textAlign="center">Asignar Orden </DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={handleSubmitForm} sx={{ mt: 2 }}>
             {/* Select para mostrar las órdenes */}

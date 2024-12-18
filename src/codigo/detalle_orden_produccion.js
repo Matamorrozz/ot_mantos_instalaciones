@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Grid2, Card, Button, Select, MenuItem, InputLabel, FormControl, Typography,
-  TextField, Alert
+  TextField, Alert, Link
 } from '@mui/material';
 import axios from 'axios';
 import { db, auth } from '../firebase/firebase-config'
@@ -64,7 +64,6 @@ const DetalleOrdenPorduccion = () => {
       setOperadores(usuariosData);
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
-      Alert.error('Error al cargar los usuarios.');
     }
   };
 
@@ -220,7 +219,9 @@ const DetalleOrdenPorduccion = () => {
           onClick={handleAsignarOrden}
         >
           Asignar Orden
+          
         </Button>
+        <Link component= "button" variant = "body2" onClick={()=> {navigate('/tabla_operadores')}}>   ¿No aparece el operador necesario? Pulsa aquí</Link>
       </Grid2>
 
       <Grid2 size={{ xs: 12, md: 8 }} sx={{ mt: 2 }} style={{ padding: 10 }}>
