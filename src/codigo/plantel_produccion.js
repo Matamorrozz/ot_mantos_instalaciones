@@ -2,7 +2,7 @@ import { useAuth } from '../context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import {
   Typography, Container, Box, Grid, Card, CardContent, Button, Dialog, DialogActions,
-  DialogContent, DialogTitle, TextField, Select, MenuItem, Link
+  DialogContent, DialogTitle, TextField, Select, MenuItem, Link, LinearProgress
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles'; // Para acceder al tema
 import axios from 'axios';
@@ -13,9 +13,9 @@ const API_URL = 'https://teknia.app/api3';
 function PlantelProduccion() {
   const { currentUser } = useAuth();
   const [ordenes, setOrdenes] = useState([]);
-  const [ordenesAgendadas, setOrdenesAgendadas] = useState([]); 
-  const [openForm, setOpenForm] = useState(false); 
-  const [formData, setFormData] = useState({ id: ''});
+  const [ordenesAgendadas, setOrdenesAgendadas] = useState([]);
+  const [openForm, setOpenForm] = useState(false);
+  const [formData, setFormData] = useState({ id: '' });
   const theme = useTheme();
   const navigate = useNavigate();
 
@@ -24,12 +24,12 @@ function PlantelProduccion() {
       try {
         const response = await axios.get(`${API_URL}/obtener_ordenes_trabajo`);
         const response2 = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`)
-        
+
         const filteredOrdenes = response.data.filter((orden) =>
           orden.titulo.toLowerCase().includes('ensamble')
         );
         const filteredOrdenesAgendadas = response2.data.filter((orden) =>
-        orden.reserva_id === 0);
+          orden.reserva_id === 0);
 
         setOrdenes(filteredOrdenes);
         setOrdenesAgendadas(filteredOrdenesAgendadas)
@@ -108,6 +108,19 @@ function PlantelProduccion() {
                     <Typography variant="body2" color="textSecondary">
                       Terminar antes de: {new Date(orden.fecha_estimada).toLocaleDateString()}
                     </Typography>
+                    <Box sx={{ mt: 2 }}>
+                      <Typography variant="body2" color="textSecondary">
+                        Progreso:
+                      </Typography>
+                      <LinearProgress
+                        variant="determinate"
+                        value={orden.avance ? orden.avance : 0}
+                        sx={{ height: 10, borderRadius: 5, backgroundColor: theme.palette.grey[300] }}
+                      />
+                      <Typography variant="caption" display="block" textAlign="right">
+                        {orden.avance ? orden.avance.toFixed(2) : 0}%
+                      </Typography>
+                    </Box>
                   </CardContent>
                 </Card>
               </Grid>

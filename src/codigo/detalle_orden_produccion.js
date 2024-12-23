@@ -16,7 +16,8 @@ const DetalleOrdenPorduccion = () => {
   const [ordenTrabajo, setOrdenTrabajo] = useState({ fecha_creacion: "" });
   const [reservas, setReservas] = useState([]);
   const [operadores, setOperadores] = useState([]);
-  const [operadorSeleccionado, setOperadorSeleccionado] = useState({ tecnico_asignado: '', correo_tecnico_asignado: '', });
+  const [operadorSeleccionado, setOperadorSeleccionado] = useState({ tecnico_asignado: '', correo_tecnico_asignado: '' });
+  const [operadorApoyoSeleccionado, setOperadorApoyoSeleccionado] = useState('');
   const [reservaSeleccionada, setReservaSeleccionada] = useState("");
   const [titulo, setTitulo] = useState("");  // Título de la orden
   const [prioridad, setPrioridad] = useState("");  // Prioridad
@@ -90,6 +91,7 @@ const DetalleOrdenPorduccion = () => {
       no_serie: '',
       tecnico_asignado: operadorSeleccionado.tecnico_asignado,
       correo_tecnico_asignado: operadorSeleccionado.correo_tecnico_asignado,
+      operador_apoyo: operadorApoyoSeleccionado.tecnico_asignado,
     };
 
     console.log("Datos para enviar a la API:", datosOrden);
@@ -202,7 +204,7 @@ const DetalleOrdenPorduccion = () => {
                 correo_tecnico_asignado: selectedOperador.correo,
               });
             }}
-            label="Asignar a un operador"
+            label="Asignar a un operador."
           >
             {operadores.map((operador) => (
               <MenuItem key={operador.correo} value={operador.correo}>
@@ -212,6 +214,23 @@ const DetalleOrdenPorduccion = () => {
           </Select>
         </FormControl>
 
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="select-operador-apoyo-label">Asignar a un operador de apoyo</InputLabel>
+          <Select
+            labelId="select-operador-apoyo-label"
+            value={operadorApoyoSeleccionado}
+            onChange={(e) => setOperadorApoyoSeleccionado(e.target.value)}
+            label="Asignar a un operador de apoyo"
+          >
+            {operadores.map((operador) => (
+              <MenuItem key={operador.correo} value={operador.nombre}>
+                {operador.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+
         <Button
           variant="contained"
           color="primary"
@@ -219,9 +238,9 @@ const DetalleOrdenPorduccion = () => {
           onClick={handleAsignarOrden}
         >
           Asignar Orden
-          
+
         </Button>
-        <Link component= "button" variant = "body2" onClick={()=> {navigate('/tabla_operadores')}}>   ¿No aparece el operador necesario? Pulsa aquí</Link>
+        <Link component="button" variant="body2" onClick={() => { navigate('/tabla_operadores') }}>   ¿No aparece el operador necesario? Pulsa aquí</Link>
       </Grid2>
 
       <Grid2 size={{ xs: 12, md: 8 }} sx={{ mt: 2 }} style={{ padding: 10 }}>
