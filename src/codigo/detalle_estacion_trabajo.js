@@ -163,6 +163,10 @@ function DetallesEstacion() {
                 return 'gray';
         }
     };
+
+    if (!Orden || Object.keys(Orden).length === 0) {
+        return <Typography>Cargando datos...</Typography>;
+    }
     return (
         <Container maxWidth="lg" sx={{ mt: 5 }}>
             <Box textAlign="center" mb={4}>
