@@ -26,9 +26,9 @@ import { ArrowBack } from '@mui/icons-material';
 
 function TablaOperadores() {
   const [operadores, setOperadores] = useState([]); // Estado para almacenar operadores
-  const [nuevoOperador, setNuevoOperador] = useState({ nombre: '', correo: '' }); // Estado para nuevo operador
+  const [nuevoOperador, setNuevoOperador] = useState({ nombre: '', correo: '', token: '' }); // Estado para nuevo operador
   const [editId, setEditId] = useState(null); // Para manejar la edición
-  const [editData, setEditData] = useState({ nombre: '', correo: '' });
+  const [editData, setEditData] = useState({ nombre: '', correo: '', token: '' });
   const navigate = useNavigate();
   const operadoresCollection = collection(db, 'operadores'); // Referencia a la colección de Firestore
 
@@ -44,10 +44,43 @@ function TablaOperadores() {
 
   // Crear nuevo operador
   const handleAddOperador = async () => {
-    if (nuevoOperador.nombre && nuevoOperador.correo) {
-      await addDoc(operadoresCollection, nuevoOperador);
-      setNuevoOperador({ nombre: '', correo: '' });
-      getOperadores(); // Actualizar la lista
+    if (nuevoOperador.nombre && nuevoOperador.correo && nuevoOperador.token) {
+      try {
+        // Registrar el usuario en Firebase Authentication
+        const apiKey = 'AIzaSyBGB6jHNXRKIif9vUSR6ogtDIcCJpnqCrU'; // Tu API Key de Firebase
+        const url = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`;
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: nuevoOperador.correo,
+            password: nuevoOperador.token, // Usamos el token como contraseña
+            returnSecureToken: false, // No autenticar automáticamente
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error al registrar el usuario:', errorData.error.message);
+          alert('Error al registrar el usuario: ' + errorData.error.message);
+          return;
+        }
+
+        // Guardar el operador en Firestore
+        await addDoc(operadoresCollection, nuevoOperador);
+
+        // Limpiar el formulario
+        setNuevoOperador({ nombre: '', correo: '', token: '' });
+
+        // Actualizar la lista
+        getOperadores();
+      } catch (error) {
+        console.error('Error al agregar el operador:', error);
+        alert('Error al agregar el operador.');
+      }
+    } else {
+      alert('Por favor completa todos los campos.');
     }
   };
 
@@ -85,16 +118,28 @@ function TablaOperadores() {
           label="Nombre"
           variant="outlined"
           value={nuevoOperador.nombre}
+          required={true}
           onChange={(e) =>
             setNuevoOperador({ ...nuevoOperador, nombre: e.target.value })
+
           }
         />
         <TextField
           label="Correo"
           variant="outlined"
           value={nuevoOperador.correo}
+          required={true}
           onChange={(e) =>
             setNuevoOperador({ ...nuevoOperador, correo: e.target.value })
+          }
+        />
+        <TextField
+          label="Código de acceso"
+          variant="outlined"
+          value={nuevoOperador.token}
+          required={true}
+          onChange={(e) =>
+            setNuevoOperador({ ...nuevoOperador, token: e.target.value })
           }
         />
         <Button variant="contained" color="primary" onClick={handleAddOperador}>

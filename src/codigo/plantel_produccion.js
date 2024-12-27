@@ -23,25 +23,31 @@ function PlantelProduccion() {
     const fetchOrdenesTrabajo = async () => {
       try {
         const response = await axios.get(`${API_URL}/obtener_ordenes_trabajo`);
-        const response2 = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`)
-
+        const response2 = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`);
+  
         const filteredOrdenes = response.data.filter((orden) =>
           orden.titulo.toLowerCase().includes('ensamble')
         );
         const filteredOrdenesAgendadas = response2.data.filter((orden) =>
-          orden.reserva_id === 0);
-
+          orden.reserva_id === 0
+        );
+  
+        // Ordenar por fecha_estimada ascendente
+        filteredOrdenesAgendadas.sort((a, b) => new Date(a.fecha_estimada) - new Date(b.fecha_estimada));
+  
         setOrdenes(filteredOrdenes);
-        setOrdenesAgendadas(filteredOrdenesAgendadas)
+        setOrdenesAgendadas(filteredOrdenesAgendadas);
       } catch (error) {
         console.error('Error al cargar las órdenes de trabajo:', error);
       }
     };
-
+  
     fetchOrdenesTrabajo();
   }, []);
 
   const cardColor = theme.palette.mode === 'dark' ? 'grey' : '#6eb2ff';
+
+  const detallesOrden = (id) => navigate(`/estacion_detalle/${id}`)
 
   const handleOpenForm = () => setOpenForm(true);
   const handleCloseForm = () => setOpenForm(false);
@@ -81,7 +87,7 @@ function PlantelProduccion() {
 
         {/* Cards con órdenes filtradas */}
         <Grid item xs={12} md={8}>
-          <Typography variant="h5" gutterBottom>
+          <Typography variant="h5" gutterBottom textAlign={'center'}>
             Órdenes de trabajo: Ensamble
           </Typography>
 
@@ -93,7 +99,17 @@ function PlantelProduccion() {
                   sx={{
                     backgroundColor: cardColor,
                     color: theme.palette.mode === 'dark' ? '#fff' : '#000',
+                    transition: '0.3s',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      backgroundColor: theme.palette.primary.light, // Cambia el color de fondo al pasar el cursor
+                      transform: 'scale(1.03)', // Agranda ligeramente el card
+                      boxShadow: `0px 4px 20px ${theme.palette.primary.main}`,
+                      color: 'black'
+                    },
+                      
                   }}
+                  onClick = {()=>{detallesOrden(orden.id)}}
                 >
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
