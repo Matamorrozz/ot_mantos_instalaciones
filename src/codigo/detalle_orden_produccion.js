@@ -9,6 +9,7 @@ import axios from 'axios';
 import { db, auth } from '../firebase/firebase-config'
 import { collection, getDocs } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { Message } from '@mui/icons-material';
 
 const DetalleOrdenPorduccion = () => {
   const { numeroOrden } = useParams();  // Número de orden desde la URL
@@ -70,8 +71,6 @@ const DetalleOrdenPorduccion = () => {
 
   // Manejar la asignación de la orden y mostrar datos en consola
   const handleAsignarOrden = async () => {
-
-
     const datosOrden = {
       titulo,
       prioridad,
@@ -98,9 +97,21 @@ const DetalleOrdenPorduccion = () => {
 
     try {
       const response = await axios.post('https://teknia.app/api/orden_agendada', datosOrden);
-      console.log("Respuesta del servidor:", response.data);
-      alert("Guardado correctamente, redirigiendo al inicio");
-      navigate('/plantel_produccion')
+      const idOrdenAgendada = response.data.id;
+      const actividadesConId = planesTrabajo.map((plan) => ({
+        id_orden_agendada: idOrdenAgendada,
+        posicion: plan.posicion,
+        codigo: plan.codigo,
+        titulo: plan.titulo,
+        objetivo: plan.objetivo,
+        clasificacion: plan.clasificacion,
+        tiempo_estimado: plan.tiempo_estimado,
+        finalizado: false, // Siempre falso al crear
+      }));
+      await postActividades(actividadesConId);
+      alert("Orden y actividades guardadas correctamente.");
+      navigate('/plantel_produccion');
+  
 
     } catch (error) {
       console.error("Error al enviar los datos a la API:", error);
@@ -126,6 +137,17 @@ const DetalleOrdenPorduccion = () => {
 
 
   }
+
+  const postActividades = async (actividades) => {
+    try {
+      const response = await axios.post('https://teknia.app/api3/nueva_actividad_realizada', actividades);
+      console.log("Actividades enviadas con éxito:", response.data);
+    } catch (error) {
+      console.error("Error al enviar las actividades:", error);
+      alert("No se pudieron guardar las actividades.");
+    }
+  };
+  
 
 
 

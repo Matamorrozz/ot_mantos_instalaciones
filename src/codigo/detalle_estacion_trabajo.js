@@ -4,15 +4,18 @@ import axios from 'axios';
 import {
     Typography, Container, Box, Grid, Card, CardContent, Button, Dialog, DialogActions,
     DialogContent, DialogTitle, TextField, Select, MenuItem, Link, LinearProgress,
-    DialogContentText, FormControl, InputLabel
+    DialogContentText, FormControl, InputLabel, List, ListItem,
+    ListItemText
 } from '@mui/material';
 import { db, auth } from '../firebase/firebase-config'
 import { collection, getDocs } from 'firebase/firestore';
+import { useTheme } from '@emotion/react';
 
 
 function DetallesEstacion() {
     const { id } = useParams();
     const [Orden, setOrden] = useState([]);
+    const [Actividades, setActividades] = useState([]);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [formData, setFormData] = useState({
         titulo: Orden.titulo,
@@ -26,22 +29,24 @@ function DetallesEstacion() {
     const [operadores, setOperadores] = useState([]);
     const [operadorSeleccionado, setOperadorSeleccionado] = useState({ tecnico_asignado: '', correo_tecnico_asignado: '' });
     const [operadorApoyoSeleccionado, setOperadorApoyoSeleccionado] = useState('');
+    const theme = useTheme();
+
 
     const navigate = useNavigate();
     useEffect(() => {
         const fetchOrdenTrabajo = async () => {
             try {
                 const response = await axios.get(`https://teknia.app/api3/obtener_orden_trabajo_agendadas/${id}`);
+                const response_actividades = await axios.get(`https://teknia.app/api3/obtener_actividades_realizadas/${id}`);
                 setOrden(response.data);
-
+                setActividades(response_actividades.data); // Asegúrate de acceder a `.data` para guardar los datos correctamente
             } catch (error) {
-                console.error(`Error al cargar ordenes: ${error}`)
-                console.log(`No se encontró la orden  teknia.app/api3/obtener_orden_trabajo_agendadas/${id}`)
+                console.error(`Error al cargar datos: ${error}`);
             }
         };
 
         fetchOrdenTrabajo();
-    })
+    }, [id]); // Agrega `id` como dependencia porque lo usas en la URL
     // Abrir y cerrar modal de edición y eliminación
     const handleOpenEditDialog = () => setOpenEditDialog(true);
     const handleCloseEditDialog = () => setOpenEditDialog(false);
@@ -65,9 +70,9 @@ function DetallesEstacion() {
             fecha_estimada: formData.fecha_estimada || Orden.fecha_estimada,
             operador_secundario: formData.operador_secundario || Orden.operador_secundario,
         };
-    
+
         console.log('Datos a enviar:', datosActualizados);
-    
+
         try {
             await axios.put(`https://teknia.app/api3/actualizar_orden_agendada/${id}`, datosActualizados);
             alert('¡Orden actualizada satisfactoriamente! :)');
@@ -78,7 +83,7 @@ function DetallesEstacion() {
             alert('No se pudo actualizar la orden:', error);
         }
     };
-    
+
 
     const BorrarOrden = async () => {
         try {
@@ -164,22 +169,42 @@ function DetallesEstacion() {
         }
     };
 
+
+    const StatusOrNot = (actividad) => {
+        if (actividad.started_at != null && actividad.finished_at != null) {
+            return `Actividad iniciada el ${formatearFecha(actividad.started_at)} y finalizada el ${formatearFecha(actividad.finished_at)}`
+        } else if (actividad.started_at != null && actividad.finished_at == null) {
+            return `Actividad iniciada el ${actividad.started_at} y está en proceso`
+        } else {
+            return 'Actividad pendiente'
+        }
+    }
+
+    const isFinished = (actividad) => {
+        if (actividad.finalizado == false) {
+            return 'En progreso'
+        } else {
+            return 'Completado'
+        }
+    }
+
+
+
     if (!Orden || Object.keys(Orden).length === 0) {
-        return <Typography>Cargando datos...</Typography>;
+        return <Typography textAlign={'center'}>Cargando datos...</Typography>;
     }
     return (
         <Container maxWidth="lg" sx={{ mt: 5 }}>
             <Box textAlign="center" mb={4}>
-                <Typography variant="h4" gutterBottom>
-                    Detalles de la orden para {Orden.titulo}
-                </Typography>
+
             </Box>
             <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
+                    <Typography variant="h5" gutterBottom textAlign={'center'}>
+                        Información general
+                    </Typography>
                     <Card sx={{ p: 3, boxShadow: 3, borderRadius: 3 }}>
-                        <Typography variant="h6" gutterBottom textAlign="center">
-                            Información general
-                        </Typography>
+
                         <Typography variant="body1" gutterBottom>
                             <strong>Título:</strong> {Orden.titulo || 'N/A'}
                         </Typography>
@@ -213,7 +238,7 @@ function DetallesEstacion() {
                             <strong>Estatus de máquina:</strong> {Orden.estatus || 'N/A'}
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                            <strong>Avance:</strong> {Orden.avance.toFixed()+ '%'|| '0%'}
+                            <strong>Avance:</strong> {Orden.avance != null ? Orden.avance.toFixed() + '%' : '0%'}
                         </Typography>
                         <Button
                             variant="contained"
@@ -357,6 +382,68 @@ function DetallesEstacion() {
                     <Typography variant="h5" gutterBottom textAlign={'center'}>
                         Listado de actividades
                     </Typography>
+                    <List
+                        sx={{
+                            width: '100%',
+                            maxWidth: '100%', // Ajusta el ancho máximo
+                            bgcolor: theme.palette.background.paper, // Cambia el fondo según el tema
+                            alignItems: 'center',
+                        }}
+                    >
+                        {Array.isArray(Actividades) && Actividades.length > 0 ? (
+                            Actividades.sort((a, b) => a.id - b.id).map((actividad) => (
+                                <ListItem
+                                    key={actividad.id}
+                                    disableGutters
+                                    sx={{
+                                        width: '90%',
+                                        margin: '10px auto',
+                                        boxShadow: theme.palette.mode === 'dark' ? 3 : 1, // Sombra más pronunciada en modo oscuro
+                                        padding: '10px 15px',
+                                        borderRadius: 2,
+                                        bgcolor: theme.palette.mode === 'dark' ? 'grey.800' : 'white', // Fondo oscuro o claro
+                                        color: theme.palette.mode === 'dark' ? 'white' : 'black', // Texto claro en modo oscuro
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        <ListItemText
+                                            primary={actividad.titulo}
+                                            secondary={StatusOrNot(actividad)}
+                                            sx={{
+                                                wordWrap: 'break-word',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'normal',
+                                                color: theme.palette.text.primary, // Usa el color de texto principal del tema
+                                            }}
+                                        />
+                                        <Typography
+                                            variant="body2"
+                                            sx={{
+                                                whiteSpace: 'nowrap',
+                                                color: obtenerColorEstatus(isFinished(actividad)),
+                                                textAlign: 'right',
+                                                marginLeft: '15px',
+                                            }}
+                                        >
+                                            {isFinished(actividad)}
+                                        </Typography>
+                                    </Box>
+                                </ListItem>
+                            ))
+                        ) : (
+                            <Typography textAlign="center">No hay actividades disponibles</Typography>
+                        )}
+                    </List>
+
+
 
                 </Grid>
 

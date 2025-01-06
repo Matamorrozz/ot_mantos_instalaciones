@@ -46,6 +46,7 @@ function PlantelProduccion() {
   }, []);
 
   const cardColor = theme.palette.mode === 'dark' ? 'grey' : '#6eb2ff';
+  const isButtonDisabled = !formData.id
 
   const detallesOrden = (id) => navigate(`/estacion_detalle/${id}`)
 
@@ -102,7 +103,7 @@ function PlantelProduccion() {
                     transition: '0.3s',
                     cursor: 'pointer',
                     '&:hover': {
-                      backgroundColor: theme.palette.primary.light, // Cambia el color de fondo al pasar el cursor
+                      backgroundColor: '#1b4f72 ', // Cambia el color de fondo al pasar el cursor
                       transform: 'scale(1.03)', // Agranda ligeramente el card
                       boxShadow: `0px 4px 20px ${theme.palette.primary.main}`,
                       color: 'black'
@@ -157,7 +158,7 @@ function PlantelProduccion() {
               value={formData.id}
               onChange={handleInputChange}
               displayEmpty
-              required
+              required 
             >
               <MenuItem value="" disabled>
                 Selecciona una equipo
@@ -175,7 +176,7 @@ function PlantelProduccion() {
           <Button onClick={handleCloseForm} color="secondary">
             Cancelar
           </Button>
-          <Button type="submit" onClick={handleSubmitForm} color="primary">
+          <Button type="submit" onClick={handleSubmitForm} color="primary" disabled={isButtonDisabled}>
             Enviar
           </Button>
         </DialogActions>
