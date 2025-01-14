@@ -4,8 +4,9 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, TextField, Grid2, Box, MenuItem, InputLabel, Select, Button, Dialog,
     DialogActions, DialogContent, DialogTitle, TablePagination, FormControl,
-    Chip, OutlinedInput, LinearProgress, Typography
+    Chip, OutlinedInput, LinearProgress, Typography, Link
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = 'https://teknia.app/api3';
 
@@ -29,6 +30,7 @@ function PlanTrabajoPage() {
 
     const [progress, setProgress] = useState(0); // Estado para el progreso
     const [open, setOpen] = useState(false); // Estado para abrir/cerrar el Dialog
+    const navigate = useNavigate();
 
     const handleClose = () => {
         setOpen(false);
@@ -264,6 +266,7 @@ function PlanTrabajoPage() {
                         <Button variant="contained" color="primary" onClick={handleAddPlan} sx={{ ml: 2 }}>
                             Agregar Plan de Trabajo
                         </Button>
+                        <Link component="button" variant="body2" onClick={() => { navigate('/tabla_maquinas') }}>   ¿Necesitas agregar algún equipo? Pulsa aquí</Link>
                     </Grid2>
                     <Grid2 size={{ xs: 12, md: 8 }}>
                         <TextField

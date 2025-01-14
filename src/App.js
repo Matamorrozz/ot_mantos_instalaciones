@@ -28,6 +28,7 @@ import PlantelProduccion from './codigo/plantel_produccion';
 import DetalleOrdenPorduccion from './codigo/detalle_orden_produccion';
 import TablaOperadores from './codigo/tabla_operadores';
 import DetallesEstacion from './codigo/detalle_estacion_trabajo';
+import TablaMaquinas from './codigo/tabla_maquinas';
 function LogoutButton() {
   const navigate = useNavigate(); 
 
@@ -214,6 +215,7 @@ function App() {
                 <Route path="/plantel_produccion/" element={<PrivateRoute><PlantelProduccion /></PrivateRoute>} />
                 <Route path="/detalle_orden_produccion/:numeroOrden" element={<PrivateRoute><DetalleOrdenPorduccion /></PrivateRoute>} />
                 <Route path="/tabla_operadores" element={<PrivateRoute><TablaOperadores /></PrivateRoute>} />
+                <Route path="/tabla_maquinas" element={<PrivateRoute><TablaMaquinas /></PrivateRoute>} />
                 <Route path="/estacion_detalle/:id" element={<PrivateRoute><DetallesEstacion /></PrivateRoute>} />
                 
                 
