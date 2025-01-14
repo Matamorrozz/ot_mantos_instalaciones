@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper,
   Grid2, Card, Button, Select, MenuItem, InputLabel, FormControl, Typography,
@@ -13,6 +13,8 @@ import { Message } from '@mui/icons-material';
 
 const DetalleOrdenPorduccion = () => {
   const { numeroOrden } = useParams();  // Número de orden desde la URL
+  const location = useLocation();
+  const folioSai = location.state?.folioSai
   const [planesTrabajo, setPlanesTrabajo] = useState([]);
   const [ordenTrabajo, setOrdenTrabajo] = useState({ fecha_creacion: "" });
   const [reservas, setReservas] = useState([]);
@@ -22,6 +24,7 @@ const DetalleOrdenPorduccion = () => {
   const [reservaSeleccionada, setReservaSeleccionada] = useState("");
   const [titulo, setTitulo] = useState("");  // Título de la orden
   const [prioridad, setPrioridad] = useState("");  // Prioridad
+  const [statusInicial, setStatusInicial] = useState("");
   const [fechaEstimada, setFechaEstimada] = useState("");  // Fecha estimada
   const [tiempoTotal, setTiempoTotal] = useState(0);  // Tiempo acumulado
   const navigate = useNavigate();
@@ -72,7 +75,7 @@ const DetalleOrdenPorduccion = () => {
   // Manejar la asignación de la orden y mostrar datos en consola
   const handleAsignarOrden = async () => {
     const datosOrden = {
-      titulo,
+      titulo: `Ensamble ${planesTrabajo[0]?.maquina} #${folioSai}`, 
       prioridad,
       fechaEstimada,
       reservaId: 0,
@@ -91,6 +94,8 @@ const DetalleOrdenPorduccion = () => {
       tecnico_asignado: operadorSeleccionado.tecnico_asignado,
       correo_tecnico_asignado: operadorSeleccionado.correo_tecnico_asignado,
       operador_apoyo: operadorApoyoSeleccionado.tecnico_asignado,
+      folio_sai: folioSai,
+      status_inicial: statusInicial
     };
 
     console.log("Datos para enviar a la API:", datosOrden);
@@ -107,7 +112,13 @@ const DetalleOrdenPorduccion = () => {
         clasificacion: plan.clasificacion,
         tiempo_estimado: plan.tiempo_estimado,
         finalizado: false, // Siempre falso al crear
+        
       }));
+      const notif = {
+        correoTecnico: operadorSeleccionado.correo_tecnico_asignado,
+        ordenNumero: folioSai
+      }
+      await mandarNotificacion(notif)
       await postActividades(actividadesConId);
       alert("Orden y actividades guardadas correctamente.");
       navigate('/plantel_produccion');
@@ -118,7 +129,7 @@ const DetalleOrdenPorduccion = () => {
     }
   };
 
-  const isButtonDisabled = !titulo || !prioridad || !operadorSeleccionado || !fechaEstimada;
+  const isButtonDisabled =  !statusInicial || !prioridad || !operadorSeleccionado || !fechaEstimada;
 
   const formatearFecha = (fecha) =>
     new Intl.DateTimeFormat('es-ES', {
@@ -136,6 +147,15 @@ const DetalleOrdenPorduccion = () => {
     });
 
 
+  }
+
+  const mandarNotificacion = async (notif)  => {
+    try{
+      const response = await axios.post('https://desarrollotecnologicoar.com/api5/enviarNotificacion/', notif);
+      console.log('Notificación enviada con éxito!')
+    } catch (error){
+      console.error("Error al enviar las actividades: ", error);
+    }
   }
 
   const postActividades = async (actividades) => {
@@ -159,6 +179,9 @@ const DetalleOrdenPorduccion = () => {
             <Grid2 xs={1}><strong>Orden #:</strong></Grid2>
             <Grid2 xs={11}>{planesTrabajo[0]?.numero_orden}</Grid2>
 
+            <Grid2 xs={1}><strong>Numero orden SAI:</strong></Grid2>
+            <Grid2 xs={11}>{folioSai}</Grid2>
+
             <Grid2 xs={1}><strong>Familia:</strong></Grid2>
             <Grid2 xs={11}>{planesTrabajo[0]?.familia}</Grid2>
 
@@ -177,14 +200,23 @@ const DetalleOrdenPorduccion = () => {
       </Grid2>
 
       <Grid2 size={{ xs: 12, md: 8 }} style={{ padding: 10 }}>
-        <TextField
-          label="Título"
-          variant="outlined"
-          fullWidth
-          value={titulo}
-          onChange={(e) => setTitulo(e.target.value)}
-          sx={{ mb: 2 }}
-        />
+        <Typography variant= 'h4' gutterBottom align = 'center'>
+           Ensamble {planesTrabajo[0]?.maquina} #{folioSai}
+        </Typography>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="select-estado-label">Estatus inicial</InputLabel>
+          <Select
+            labelId="select-estado-label"
+            value={statusInicial}
+            onChange={(e) => setStatusInicial(e.target.value)}
+            label="Status Inicial"
+          >
+            <MenuItem value="Equipo Nuevo">Equipo Nuevo</MenuItem>
+            <MenuItem value="Equipo Remanufacturado">Equipo Remanufacturado</MenuItem>
+          </Select>
+        </FormControl>
+
 
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="select-prioridad-label">Prioridad</InputLabel>

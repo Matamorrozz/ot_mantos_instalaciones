@@ -2,11 +2,13 @@ import { useAuth } from '../context/AuthContext';
 import React, { useState, useEffect } from 'react';
 import {
   Typography, Container, Box, Grid, Card, CardContent, Button, Dialog, DialogActions,
-  DialogContent, DialogTitle, TextField, Select, MenuItem, Link, LinearProgress
+  DialogContent, DialogTitle, TextField, Select, MenuItem, Link, LinearProgress,
+  FormControl
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles'; // Para acceder al tema
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+
 
 const API_URL = 'https://teknia.app/api3';
 
@@ -24,24 +26,24 @@ function PlantelProduccion() {
       try {
         const response = await axios.get(`${API_URL}/obtener_ordenes_trabajo`);
         const response2 = await axios.get(`${API_URL}/obtener_ordenes_trabajo_agendada`);
-  
+
         const filteredOrdenes = response.data.filter((orden) =>
           orden.titulo.toLowerCase().includes('ensamble')
         );
         const filteredOrdenesAgendadas = response2.data.filter((orden) =>
           orden.reserva_id === 0
         );
-  
+
         // Ordenar por fecha_estimada ascendente
         filteredOrdenesAgendadas.sort((a, b) => new Date(a.fecha_estimada) - new Date(b.fecha_estimada));
-  
+
         setOrdenes(filteredOrdenes);
         setOrdenesAgendadas(filteredOrdenesAgendadas);
       } catch (error) {
         console.error('Error al cargar las órdenes de trabajo:', error);
       }
     };
-  
+
     fetchOrdenesTrabajo();
   }, []);
 
@@ -57,11 +59,11 @@ function PlantelProduccion() {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-
+//  Función para navegar con el ID de la orden mediante parámetro en url y el id de SAI mediante un estado.
   const handleSubmitForm = (e) => {
     e.preventDefault();
     console.log('Formulario enviado:', formData);
-    navigate(`/detalle_orden_produccion/${formData.id}`);
+    navigate(`/detalle_orden_produccion/${formData.id}`, {state: {folioSai: formData.folio_sai}});
   };
 
   return (
@@ -108,9 +110,9 @@ function PlantelProduccion() {
                       boxShadow: `0px 4px 20px ${theme.palette.primary.main}`,
                       color: 'black'
                     },
-                      
+
                   }}
-                  onClick = {()=>{detallesOrden(orden.id)}}
+                  onClick={() => { detallesOrden(orden.id) }}
                 >
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -151,14 +153,28 @@ function PlantelProduccion() {
         <DialogTitle textAlign="center">Asignar Orden </DialogTitle>
         <DialogContent>
           <Box component="form" onSubmit={handleSubmitForm} sx={{ mt: 2 }}>
+
             {/* Select para mostrar las órdenes */}
+            <TextField
+              label="Número de orden"
+              type="number"
+              name="folio_sai"
+              placeholder="Ingresa el número de orden del SAI"
+              value={formData.folio_sai || ''}
+              onChange={handleInputChange}
+              fullWidth
+              required
+              margin="normal"
+            />
+
             <Select
               fullWidth
               name="id"
               value={formData.id}
               onChange={handleInputChange}
               displayEmpty
-              required 
+              disabled={!formData.folio_sai}
+              required
             >
               <MenuItem value="" disabled>
                 Selecciona una equipo
