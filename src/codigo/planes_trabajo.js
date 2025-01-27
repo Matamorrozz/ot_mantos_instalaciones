@@ -4,7 +4,7 @@ import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, TextField, Grid2, Box, MenuItem, InputLabel, Select, Button, Dialog,
     DialogActions, DialogContent, DialogTitle, TablePagination, FormControl,
-    Chip, OutlinedInput, LinearProgress, Typography, Link
+    Chip, OutlinedInput, LinearProgress, Typography, Link, Autocomplete
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
@@ -75,11 +75,11 @@ function PlanTrabajoPage() {
         }
     };
 
-    const handleChange = (event) => {
+    const handleChange = (event, newValue) => {
         const { value } = event.target;
         setNewPlan({
             ...newPlan,
-            actividad_id: typeof value === 'string' ? value.split(',') : value, // Maneja múltiples valores
+            actividad_id: newValue.map((actividad)=> actividad.id)
         });
     };
 
@@ -165,7 +165,7 @@ function PlanTrabajoPage() {
             <Box sx={{ flexGrow: 1, p: 2 }}>
                 <Grid2 container spacing={2}>
                     <Grid2 size={{ xs: 12, md: 4 }}>
-                        <FormControl fullWidth>
+                        {/* <FormControl fullWidth>
                             <InputLabel style={{ padding: 10 }}>Selecciona la actividad relacionada</InputLabel>
                             <Select
                                 labelId="actividad-select-label"
@@ -189,6 +189,30 @@ function PlanTrabajoPage() {
                                     </MenuItem>
                                 ))}
                             </Select>
+                        </FormControl> */}
+                        <FormControl fullWidth>
+                            <InputLabel style={{ padding: 10 }}></InputLabel>
+                            <Autocomplete
+                                multiple
+                                options = {actividades}
+                                style={{ marginBottom: 10 }}
+                                getOptionLabel={(option)=> option.titulo}
+                                value={actividades.filter((actividad) => newPlan.actividad_id.includes(actividad.id))}
+                                onChange={handleChange}
+                                renderTags={(value, getTagProps) =>
+                                    value.map((option, index) => (
+                                      <Chip
+                                        key={option.id}
+                                        label={option.titulo}
+                                        {...getTagProps({ index })}
+                                      />
+                                    ))
+                                  }
+                                renderInput={(params)=>(
+                                    <TextField {...params} label = "Actividades" placeholder='Selecciona una actividad'/>
+                                )}
+                                />
+
                         </FormControl>
                         <FormControl fullWidth>
                             <InputLabel>Tipo de Servicio</InputLabel>

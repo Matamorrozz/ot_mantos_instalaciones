@@ -31,11 +31,13 @@ function PlantelProduccion() {
           orden.titulo.toLowerCase().includes('ensamble')
         );
         const filteredOrdenesAgendadas = response2.data.filter((orden) =>
-          orden.reserva_id === 0
+          orden.reserva_id === 0 && orden.estatus !== "Finalizado"
         );
 
         // Ordenar por fecha_estimada ascendente
         filteredOrdenesAgendadas.sort((a, b) => new Date(a.fecha_estimada) - new Date(b.fecha_estimada));
+
+        
 
         setOrdenes(filteredOrdenes);
         setOrdenesAgendadas(filteredOrdenesAgendadas);
@@ -95,7 +97,7 @@ function PlantelProduccion() {
           </Typography>
 
           <Grid container spacing={2}>
-            {ordenesAgendadas.map((orden) => (
+            {ordenesAgendadas.slice(0,15).map((orden) => (
               <Grid item xs={12} sm={6} md={4} key={orden.id}>
                 <Card
                   variant="outlined"
