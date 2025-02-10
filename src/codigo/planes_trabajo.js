@@ -22,8 +22,7 @@ function PlanTrabajoPage() {
     const [editPlan, setEditPlan] = useState(null);
     const [dialogOpen, setDialogOpen] = useState(false);
 
-    const [searchTerm, setSearchTerm] = useState(''); // Buscador de planes de trabajo
-    const [searchTermActividades, setSearchTermActividades] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
     const [page, setPage] = useState(0);
     const [rowsPerPage] = useState(10);
 
@@ -84,7 +83,7 @@ function PlanTrabajoPage() {
         });
     };
 
-    const handleAddPlan = async () => {
+    const handleAddPlan = async () => { 
         const { actividad_id, ...planBase } = newPlan; // Extraemos `actividad_id` del resto del plan
         setOpen(true); // Abrimos el Dialog
 
@@ -191,48 +190,30 @@ function PlanTrabajoPage() {
                                 ))}
                             </Select>
                         </FormControl> */}
-                <FormControl fullWidth>
-                    <Autocomplete
-                        multiple
-                        options={actividades.filter((option) =>
-                            option.titulo.toLowerCase().includes(searchTermActividades.toLowerCase())
-                        )}
-                        getOptionLabel={(option) => option.titulo}
-                        value={actividades.filter((actividad) => newPlan.actividad_id.includes(actividad.id))}
-                        onChange={(event, newValue) => {
-                            const selectedIds = newValue.map((actividad) => actividad.id);
-                            setNewPlan((prevPlan) => ({
-                                ...prevPlan,
-                                actividad_id: selectedIds,
-                            }));
-                        }}
-                        inputValue={searchTermActividades} // Controla el valor del input sin afectar la selección
-                        onInputChange={(event, newInputValue) => {
-                            setSearchTermActividades(newInputValue); // Mantiene el texto mientras se escribe
-                        }}
-                        filterOptions={(options, { inputValue }) => {
-                            return options.filter((option) =>
-                                option.titulo.toLowerCase().includes(inputValue.toLowerCase())
-                            );
-                        }}
-                        renderTags={(value, getTagProps) =>
-                            value.map((option, index) => (
-                                <Chip key={option.id} label={option.titulo} {...getTagProps({ index })} />
-                            ))
-                        }
-                        renderInput={(params) => (
-                            <TextField
-                                {...params}
-                                label="Actividades"
-                                placeholder="Selecciona una actividad"
-                            />
-                        )}
-                    />
-                </FormControl>
+                        <FormControl fullWidth>
+                            <InputLabel style={{ padding: 10 }}></InputLabel>
+                            <Autocomplete
+                                multiple
+                                options = {actividades}
+                                style={{ marginBottom: 10 }}
+                                getOptionLabel={(option)=> option.titulo}
+                                value={actividades.filter((actividad) => newPlan.actividad_id.includes(actividad.id))}
+                                onChange={handleChange}
+                                renderTags={(value, getTagProps) =>
+                                    value.map((option, index) => (
+                                      <Chip
+                                        key={option.id}
+                                        label={option.titulo}
+                                        {...getTagProps({ index })}
+                                      />
+                                    ))
+                                  }
+                                renderInput={(params)=>(
+                                    <TextField {...params} label = "Actividades" placeholder='Selecciona una actividad'/>
+                                )}
+                                />
 
-
-
-
+                        </FormControl>
                         <FormControl fullWidth>
                             <InputLabel>Tipo de Servicio</InputLabel>
                             <Select
