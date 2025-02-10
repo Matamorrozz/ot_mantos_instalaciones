@@ -4,6 +4,9 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 import { Button, MenuItem, Select, FormControl, InputLabel, Typography, Snackbar, Alert, TextField } from '@mui/material';
 import { Build, Visibility, Done, CleaningServices, SwapHoriz, EngineeringOutlined } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
+import { useAuth } from "../context/AuthContext"; // Ajusta la ruta según tu proyecto
+
+
 
 const ItemType = 'ACTIVITY';
 
@@ -173,10 +176,11 @@ const Tecnicos = () => {
   const [maquinaSeleccionada, setMaquinaSeleccionada] = useState('');
   const [tipoServicio, setTipoServicio] = useState('');
   const [plazo, setPlazo] = useState('');
+  const { currentUser } = useAuth();
   const [workOrders, setWorkOrders] = useState([]); // Almacena las órdenes de trabajo obtenidas
   const [errorMessage, setErrorMessage] = useState(''); // Estado para mostrar el mensaje de error
   const [openSnackbar, setOpenSnackbar] = useState(false); // Control del Snackbar
-
+  const { user } = useAuth();
   const theme = useTheme();
 
   // Fetch de máquinas según la familia seleccionada
@@ -252,6 +256,7 @@ const Tecnicos = () => {
   };
 
   const crearOrdenTrabajo = async () => {
+    
     console.log(tecnicoAsignado.items);
     try {
       const response = await fetch(`https://teknia.app/api3/crear_orden_trabajo`, {
@@ -260,8 +265,8 @@ const Tecnicos = () => {
           'Content-Type': 'application/json',  // Indicamos que estamos enviando JSON
         },
         body: JSON.stringify({
-          nombre_persona: 'Developer AR',  // Reemplaza con el valor correspondiente
-          correo_persona: 'developer@asiarobotica.com',  // Reemplaza con el valor correspondiente
+          nombre_persona: currentUser.displayName,  // Reemplaza con el valor correspondiente
+          correo_persona: currentUser.email,  // Reemplaza con el valor correspondiente
           version: 1,
           puede_editar: false,
           titulo: titulo
@@ -271,6 +276,7 @@ const Tecnicos = () => {
       if (response.ok) {  // Verifica si la respuesta fue exitosa (código 200 o 201)
         const nuevaOrden = await response.json();  // Convertir la respuesta en JSON
         console.log('Orden de trabajo creada:', nuevaOrden);
+        alert(`Orden de trabajo creada: ${nuevaOrden.id} `);
   
         // Actualiza los planes de trabajo con el ID de la orden creada
         actualizarPlanesTrabajo(nuevaOrden.id);

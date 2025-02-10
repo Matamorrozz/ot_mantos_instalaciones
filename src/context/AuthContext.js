@@ -1,4 +1,3 @@
-// AuthProvider.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase/firebase-config";
@@ -13,14 +12,23 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
+      if (user) {
+        setCurrentUser({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || "Usuario Desconocido", // 👈 Evita `null`
+        });
+      } else {
+        setCurrentUser(null);
+      }
       setLoading(false);
     });
+
     return unsubscribe;
   }, []);
 
   if (loading) {
-    return <p>Cargando...</p>; // O un spinner de carga si prefieres
+    return <p>Cargando...</p>; // Puedes usar un spinner aquí
   }
 
   return (
