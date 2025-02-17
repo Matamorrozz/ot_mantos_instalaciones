@@ -23,7 +23,9 @@ function DetallesEstacion() {
         tecnico_asignado: Orden.tecnico_asignado,
         correo_tecnico_asignado: Orden.tecnico_asignado,
         fecha_estimada: Orden.fecha_estimada,
-        operador_secundario: Orden.operador_secundario
+        operador_secundario: Orden.operador_secundario,
+        numero_serie: Orden.numero_serie,
+        customizacion: Orden.customizacion
     })
     const [openEraseDialog, setOpenEraseDialog] = useState(false);
     const [operadores, setOperadores] = useState([]);
@@ -69,13 +71,20 @@ function DetallesEstacion() {
             correo_tecnico_asignado: formData.correo_tecnico_asignado || Orden.correo_tecnico_asignado,
             fecha_estimada: formData.fecha_estimada || Orden.fecha_estimada,
             operador_secundario: formData.operador_secundario || Orden.operador_secundario,
+            numero_serie: formData.numero_serie || Orden.numero_serie,
+            customizacion: formData.customizacion || Orden.customizacion
         };
+
+        const match = datosActualizados.titulo.match(/#(\d+)/);
+        if (match) {
+            datosActualizados.folio_sai = match[1];
+        }   
 
         console.log('Datos a enviar:', datosActualizados);
 
         try {
             await axios.put(`https://teknia.app/api3/actualizar_orden_agendada/${id}`, datosActualizados);
-            alert('¡Orden actualizada satisfactoriamente! :)');
+            alert('¡Orden actualizada satisfactoriamente! :)  número de folio sai: ' + datosActualizados.folio_sai);
             setOrden((prev) => ({ ...prev, ...datosActualizados }));
             handleCloseEditDialog();
         } catch (error) {
@@ -209,6 +218,9 @@ function DetallesEstacion() {
                         <Typography variant="body1" gutterBottom>
                             <strong>Título:</strong> {Orden.titulo || 'N/A'}
                         </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          <strong>Folio de SAI:</strong> {Orden.folio_sai || <Typography component="span" style={{ color: 'red' }}>SIN FOLIO SAI</Typography>}
+                        </Typography>
                         <Typography variant="body1" gutterBottom sx={{ color: obtenerColorPrioridad(Orden.prioridad), fontWeight: 'bold' }}>
                             <strong>Prioridad:</strong> {Orden.prioridad || 'N/A'}
                         </Typography>
@@ -241,6 +253,14 @@ function DetallesEstacion() {
                         <Typography variant="body1" gutterBottom>
                             <strong>Avance:</strong> {Orden.avance != null ? Orden.avance.toFixed() + '%' : '0%'}
                         </Typography>
+
+                        <Typography variant="body1" gutterBottom>
+                            <strong>Número de serie:</strong> {Orden.numero_serie || 'N/A'} 
+                        </Typography>
+
+                        <Typography variant="body1" gutterBottom>
+                            <strong>Customización:</strong> {Orden.customizacion || 'Sin customización'}   
+                        </Typography>
                         <Button
                             variant="contained"
                             color="primary"
@@ -271,14 +291,44 @@ function DetallesEstacion() {
                                 onChange={handleInputChange}
                                 sx={{ mb: 2 }}
                             />
-                            {/* <TextField
-                                label="Prioridad"
-                                name="prioridad"
+
+                            <TextField
+                                label="Número de serie"
+                                name="numero_serie"
                                 fullWidth
-                                value={formData.prioridad}
+                                value={formData.numero_serie}
                                 onChange={handleInputChange}
                                 sx={{ mb: 2 }}
-                            /> */}
+                            />
+                            <FormControl fullWidth sx={{ mb: 2 }}>
+                                <InputLabel id="select-custom-label">Customizacion</InputLabel>
+                                <Select
+                                    labelId="select-custom-label"
+                                    name="customizacion" // Necesario para identificar el campo en el estado
+                                    value={formData.customizacion}
+                                    onChange={handleInputChange}
+                                    label="Customización"
+                                >
+                                    <MenuItem value="Desmontar Press Roller Shop">Desmontar Press Roller Shop</MenuItem>
+                                    <MenuItem value="Press Roller Works">Press Roller Works</MenuItem>
+                                    <MenuItem value="Motor spindle 8/9hp HSD Shop">Motor spindle 8/9hp HSD Shop</MenuItem>
+                                    <MenuItem value="Motor spindle semi-auto 7hp (misil)">Motor spindle semi-auto 7hp (misil)</MenuItem>
+                                    <MenuItem value="Sistema rotativo de mesa (Router)">Sistema rotativo de mesa (Router)</MenuItem>
+                                    <MenuItem value="FB X0/X3 bifásica a trifásica">FB X0/X3 bifásica a trifásica</MenuItem>
+                                    <MenuItem value="Acc. Rotativo Chuck (Creator)">Acc. Rotativo Chuck (Creator)</MenuItem>
+                                    <MenuItem value="Acc. Rotativo Rodillos (Creator)">Acc. Rotativo Rodillos (Creator)</MenuItem>
+                                    <MenuItem value="Aumento Creator 100W a 130W">Aumento Creator 100W a 130W</MenuItem>
+                                    <MenuItem value="Doble Bomba">Doble Bomba</MenuItem>
+                                    <MenuItem value="Aumento FiberGraver 30 a 50W">Aumento FiberGraver 30 a 50W</MenuItem>
+                                    <MenuItem value="Incremento tamaño 1 mesa">Incremento tamaño 1 mesa</MenuItem>
+                                    <MenuItem value="Incremento tamaño doble mesa">Incremento tamaño doble mesa</MenuItem>
+                                    <MenuItem value="Sistema de lubricacion">Sistema de lubricacion</MenuItem>
+                                    <MenuItem value="Cambio de modulo">Cambio de modulo</MenuItem>
+                                    <MenuItem value="Sistema Rodillos Router">Sistema Rodillos Router</MenuItem>
+                                    <MenuItem value="Cambio de Servos a Steppers">Cambio de Servos a Steppers</MenuItem>
+                                </Select>
+                            </FormControl>
+
                             <FormControl fullWidth sx={{ mb: 2 }}>
                                 <InputLabel id="select-prioridad-label">Prioridad</InputLabel>
                                 <Select

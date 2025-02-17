@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { Button, MenuItem, Select, FormControl, InputLabel, Typography, Snackbar, Alert, TextField } from '@mui/material';
+import { Button, MenuItem, Select, FormControl, InputLabel, Link, Typography, Snackbar, Alert, TextField, Dialog, Chip, DialogTitle, DialogContent, Box, DialogActions, Autocomplete } from '@mui/material';
 import { Build, Visibility, Done, CleaningServices, SwapHoriz, EngineeringOutlined } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { useAuth } from "../context/AuthContext"; // Ajusta la ruta según tu proyecto
+import { use } from 'react';
+
 
 
 
@@ -106,6 +108,8 @@ const TecnicoDropZone = ({ tecnicoAsignado, moveActivity, removeActivity }) => {
     },
   });
 
+
+
   return (
     <div
       ref={dropRef}
@@ -169,6 +173,7 @@ const TecnicoDropZone = ({ tecnicoAsignado, moveActivity, removeActivity }) => {
 };
 
 const Tecnicos = () => {
+
   const [titulo, setTitulo] = useState('');
   const [tecnicoAsignado, setTecnicoAsignado] = useState({ items: [] });
   const [familiaSeleccionada, setFamiliaSeleccionada] = useState('');
@@ -182,6 +187,22 @@ const Tecnicos = () => {
   const [openSnackbar, setOpenSnackbar] = useState(false); // Control del Snackbar
   const { user } = useAuth();
   const theme = useTheme();
+  const [openForm, setOpenForm] = useState(false);
+  const [openActForm, setOpenActForm] = useState(false);
+  const [idOrden, setidOrden] = useState('');
+  const handleOpenForm = () => { setOpenForm(true); ordenesList(); };
+  const handleCloseForm = () => setOpenForm(false);
+  const handleOpenActForm = () => setOpenActForm(true);
+  const handleCloseActForm = () => setOpenActForm(false);
+  const [NewAct, setNewAct] = useState([]);
+  const [actividades, setActividades] = useState([]);
+  const [ordenes, setOrdenes] = useState([]);
+  const isButtonDisabled = !idOrden;
+  const [searchTermActividades, setSearchTermActividades] = useState('');
+  const [newPlan, setNewPlan] = useState({
+    numero_orden: '', tipo_servicio: '', actividad_id: [], estado: '',
+    familia: '', maquina: '', plazo_servicio: ''
+  });
 
   // Fetch de máquinas según la familia seleccionada
   useEffect(() => {
@@ -201,6 +222,10 @@ const Tecnicos = () => {
   }, [familiaSeleccionada]);
 
   useEffect(() => {
+    fetchActividades();
+  }, []);
+
+  useEffect(() => {
     if (familiaSeleccionada && maquinaSeleccionada && tipoServicio && plazo) {
       const fetchWorkOrders = async () => {
         try {
@@ -216,6 +241,8 @@ const Tecnicos = () => {
 
       fetchWorkOrders();
     }
+
+
   }, [familiaSeleccionada, maquinaSeleccionada, tipoServicio, plazo]);
 
   const moveActivity = (sourceIndex, destinationIndex, origin) => {
@@ -255,44 +282,70 @@ const Tecnicos = () => {
     setOpenSnackbar(false);
   };
 
-  const crearOrdenTrabajo = async () => {
-    
-    console.log(tecnicoAsignado.items);
+  const fetchActividades = async () => {
     try {
-      const response = await fetch(`https://teknia.app/api3/crear_orden_trabajo`, {
-        method: 'POST',  // Método de la solicitud
-        headers: {
-          'Content-Type': 'application/json',  // Indicamos que estamos enviando JSON
-        },
-        body: JSON.stringify({
-          nombre_persona: currentUser.displayName,  // Reemplaza con el valor correspondiente
-          correo_persona: currentUser.email,  // Reemplaza con el valor correspondiente
-          version: 1,
-          puede_editar: false,
-          titulo: titulo
-        }),
-      });
-  
-      if (response.ok) {  // Verifica si la respuesta fue exitosa (código 200 o 201)
-        const nuevaOrden = await response.json();  // Convertir la respuesta en JSON
-        console.log('Orden de trabajo creada:', nuevaOrden);
-        alert(`Orden de trabajo creada: ${nuevaOrden.id} `);
-  
-        // Actualiza los planes de trabajo con el ID de la orden creada
-        actualizarPlanesTrabajo(nuevaOrden.id);
-      } else {
-        console.error('Error en la respuesta de crear la orden de trabajo:', response.status);
-      }
+      const response = await fetch(`https://teknia.app/api3/obtener_actividades_mantto`);
+      const data = await response.json();
+      setActividades(data);
+      console.log('Actividades cargadas con éxito:');
     } catch (error) {
-      console.error('Error al crear la orden de trabajo:', error);
+      console.error('Error al obtener las actividades:', error);
     }
   };
 
+  const crearOrdenTrabajo = async () => {
+    // Validaciones antes de proceder
+    if (
+      !titulo.trim() ||
+      !familiaSeleccionada ||
+      !maquinaSeleccionada ||
+      !tipoServicio ||
+      !plazo ||
+      tecnicoAsignado.items.length === 0 // Verifica que haya al menos una actividad
+    ) {
+      alert('Por favor, completa todos los campos y selecciona al menos una actividad.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://teknia.app/api3/crear_orden_trabajo`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          nombre_persona: currentUser.displayName,
+          correo_persona: currentUser.email,
+          version: 1,
+          puede_editar: false,
+          titulo: titulo.trim(), // Limpia espacios en blanco extra
+        }),
+      });
+
+      if (!response.ok) {
+        console.error('Error en la respuesta de crear la orden de trabajo:', response.status);
+        alert('Hubo un error al crear la orden de trabajo.');
+        return;
+      }
+
+      const nuevaOrden = await response.json();
+      console.log('Orden de trabajo creada:', nuevaOrden);
+      alert(`Orden de trabajo creada: ${nuevaOrden.id}`);
+
+      // Llamar a la función para actualizar los planes de trabajo con la nueva orden creada
+      await actualizarPlanesTrabajo(nuevaOrden.id);
+    } catch (error) {
+      console.error('Error al crear la orden de trabajo:', error);
+      alert('Error en la creación de la orden.');
+    }
+  };
+
+
   const actualizarPlanesTrabajo = async (nuevaOrdenId) => {
-    
+
     for (let i = 0; i < tecnicoAsignado.items.length; i++) {
       const plan = tecnicoAsignado.items[i];
-  
+
       try {
         const response = await fetch(`https://teknia.app/api3/actualizar_orden_plan_trabajo/${plan.id}`, {
           method: 'PUT',  // Método de la solicitud
@@ -304,7 +357,7 @@ const Tecnicos = () => {
             posicion: i + +1
           }),
         });
-  
+
         if (response.status === 200) {
           console.log(`Plan de trabajo ${plan.id} actualizado con éxito`, response.data);
         }
@@ -314,6 +367,116 @@ const Tecnicos = () => {
     }
   };
 
+  const ordenesList = async () => {
+    try {
+      const response = await fetch(`https://teknia.app/api3/obtener_ordenes_trabajo`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status == 200) {
+        const data = await response.json();
+        console.log('Ordenes de trabajo cargadas con éxito');
+        setOrdenes(data);
+      }
+
+
+    } catch (e) {
+      console.error('Error al obtener las órdenes de trabajo para el desplegable:', e);
+    }
+  };
+
+
+
+
+
+  const clonarOrdenTrabajo = async (idOrden) => {
+    try {
+      const response = await fetch(`https://teknia.app/api3/obtener_planes_trabajo_por_orden/${idOrden}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.status == 200) {
+        const data = await response.json();
+        console.log('Orden de trabajo clonada:', data);
+        setWorkOrders(data);
+      }
+
+
+    } catch (e) {
+      console.error('Error al clonar la orden de trabajo:', e);
+    }
+  };
+
+  const handleSubmitForm = () => {
+    clonarOrdenTrabajo(idOrden);
+    handleCloseForm();
+  }
+
+  const linkAct = () => {
+    if (workOrders.length > 0) {
+      return (<h5><Link onClick={() => { setOpenActForm(true) }}>¿te faltó alguna actividad? ¡pulsa aquí!</Link></h5>);
+    } else {
+      return (<h5></h5>);
+    }
+  };
+
+  const handleAddPlan = async () => {
+    if (!newPlan.actividad_id.length) {
+      alert('Debes seleccionar al menos una actividad.');
+      return;
+    }
+
+    try {
+      // Recorremos todas las actividades seleccionadas y enviamos cada una por separado
+      const requests = newPlan.actividad_id.map(async (actividadId) => {
+        const actividadSeleccionada = actividades.find((act) => act.id === actividadId);
+
+        return fetch(`https://teknia.app/api3/crear_plan_trabajo`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            numero_orden: workOrders[0].numero_orden, // Se mantiene igual
+            tipo_servicio: workOrders[0].tipo_servicio, // Se mantiene igual
+            actividad_id: actividadId, // Se cambia por la actividad seleccionada
+            estado: 'Liberado', // Se puede cambiar según necesidad
+            familia: workOrders[0].familia, // Se mantiene igual
+            maquina: workOrders[0].maquina, // Se mantiene igual
+            plazo_servicio: workOrders[0].plazo_servicio, // Se mantiene igual
+            titulo: actividadSeleccionada.titulo, // Se cambia según la actividad
+          }),
+
+        });
+      });
+
+      await Promise.all(requests); // Esperamos que todas las peticiones se completen
+      alert('Actividades agregadas con éxito.');
+
+
+      // Opcional: Resetear el estado
+      setNewPlan({
+        numero_orden: '',
+        tipo_servicio: '',
+        actividad_id: [],
+        estado: '',
+        familia: '',
+        maquina: '',
+        plazo_servicio: '',
+      });
+
+      handleCloseActForm(); // Cerrar modal después de agregar
+    } catch (error) {
+      console.error('Error al agregar el plan de trabajo:', error);
+      alert('Hubo un error al agregar las actividades.');
+    }
+  };
+
+
   return (
     <DndProvider backend={HTML5Backend}>
       <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between' }}>
@@ -322,11 +485,12 @@ const Tecnicos = () => {
           <div style={{ padding: "5px" }}>
             <FormControl fullWidth>
               <TextField
-                  label="Titulo"
-                  value={titulo}
-                  onChange={(e) => setTitulo(e.target.value)}
-                  fullWidth
-                  sx={{ mb: 2 }}
+                label="Titulo"
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                fullWidth
+                required
+                sx={{ mb: 2 }}
               />
             </FormControl>
             <FormControl fullWidth>
@@ -337,6 +501,7 @@ const Tecnicos = () => {
                 label="Selecciona una familia"
                 style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}
                 sx={{ mb: 2 }}
+                required
               >
                 {['Router', 'Láser Co2', 'Láser Fibra Óptica', 'Plasma', 'Dobladora', 'Grua Neumática', 'Externa'].map((familia) => (
                   <MenuItem key={familia} value={familia}>
@@ -355,6 +520,7 @@ const Tecnicos = () => {
                     onChange={(e) => setMaquinaSeleccionada(e.target.value)}
                     label="Selecciona una máquina"
                     style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}
+                    required
                   >
                     {maquinas.map((maquina) => (
                       <MenuItem key={maquina.maquina} value={maquina.maquina}>
@@ -373,6 +539,7 @@ const Tecnicos = () => {
                 onChange={(e) => setTipoServicio(e.target.value)}
                 label="Tipo de Servicio"
                 style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}
+                required
               >
                 <MenuItem value="Instalación">Instalación</MenuItem>
                 <MenuItem value="Capacitación">Capacitación</MenuItem>
@@ -386,18 +553,18 @@ const Tecnicos = () => {
             </FormControl>
 
             <FormControl fullWidth>
-                <InputLabel>Plazo de Servicio</InputLabel>
-                <Select
-                    value={plazo}
-                    onChange={(e) => setPlazo(e.target.value)}
-                    >
-                    <MenuItem value="Trimestral">Trimestral</MenuItem>
-                    <MenuItem value="Cuatrimestral">Cuatrimestral</MenuItem>
-                    <MenuItem value="Semestral">Semestral</MenuItem>
-                    <MenuItem value="Octomestral">Octomestral</MenuItem>
-                    <MenuItem value="Anual">Anual</MenuItem>
-                    <MenuItem value="No Aplica">No Aplica</MenuItem>
-                </Select>
+              <InputLabel>Plazo de Servicio</InputLabel>
+              <Select
+                value={plazo}
+                onChange={(e) => setPlazo(e.target.value)}
+              >
+                <MenuItem value="Trimestral">Trimestral</MenuItem>
+                <MenuItem value="Cuatrimestral">Cuatrimestral</MenuItem>
+                <MenuItem value="Semestral">Semestral</MenuItem>
+                <MenuItem value="Octomestral">Octomestral</MenuItem>
+                <MenuItem value="Anual">Anual</MenuItem>
+                <MenuItem value="No Aplica">No Aplica</MenuItem>
+              </Select>
             </FormControl>
           </div>
 
@@ -412,7 +579,13 @@ const Tecnicos = () => {
               overflowY: 'auto'
             }}
           >
-            <h3 style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}>Actividades</h3>
+            <div>
+              <h3 style={{ color: theme.palette.mode === 'dark' ? '#ffffff' : '#000000' }}>Actividades </h3>
+              {linkAct()}
+
+
+            </div>
+
 
             {workOrders.map((workOrder, index) => (
               <Activity
@@ -435,22 +608,36 @@ const Tecnicos = () => {
           />
         </div>
       </div>
+      <div style={{ padding: '20px', justifyContent: 'center', display: 'flex', marginTop: '20px' }}>
+        <Button
+          variant="contained"
+          color="primary"
+          style={{
+            borderRadius: '20px',
+            padding: '10px 20px',
+            textTransform: 'none',
+          }}
+          onClick={crearOrdenTrabajo}
+        >
+          Guardar
+        </Button>
 
-      <Button
-        variant="contained"
-        color="primary"
-        style={{
-          marginTop: '20px',
-          backgroundColor: theme.palette.mode === 'dark' ? '#1976d2' : '#007bff',
-          color: '#fff',
-          borderRadius: '20px',
-          padding: '10px 20px',
-          textTransform: 'none',
-        }}
-        onClick={crearOrdenTrabajo} 
-      >
-        Guardar
-      </Button>
+        <Button
+          variant="contained"
+          color="success"
+          style={{
+            marginTop: '20px',
+            borderRadius: '20px',
+            padding: '10px 20px',
+            textTransform: 'none',
+            margin: '0 20px'
+
+          }}
+          onClick={handleOpenForm}
+        >
+          Clonar orden de trabajo
+        </Button>
+      </div>
 
       {/* Snackbar para mostrar el mensaje de error */}
       <Snackbar
@@ -462,6 +649,99 @@ const Tecnicos = () => {
           {errorMessage}
         </Alert>
       </Snackbar>
+
+      <Dialog open={openForm} onClose={handleCloseForm} >
+        <DialogTitle textAlign="center">Clonar Orden de Trabajo</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ mt: 2 }} onSubmit={handleSubmitForm}>
+            <Select
+              fullWidth
+              name="id"
+              value={idOrden}
+              onChange={(e) => { setidOrden(e.target.value) }}
+              displayEmpty
+              required
+            >
+              <MenuItem value="" disabled>
+                Selecciona una orden de trabajo
+              </MenuItem>
+              {ordenes.map((orden) => (
+                <MenuItem key={orden.id} value={orden.id}>
+                  {orden.titulo}
+                </MenuItem>
+              ))}
+            </Select>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseForm} color="">
+            Cancelar
+          </Button>
+          <Button type="submit" color="secondary" disabled={isButtonDisabled} onClick={handleSubmitForm}>
+            Clonar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+
+
+      {/* ########################################################################################################################################################## */}
+      <Dialog open={openActForm} onClose={handleCloseForm} maxWidth="md" fullWidth>
+        <DialogTitle textAlign="center">Agregar Actividad</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ mt: 2 }}>
+            <Autocomplete
+              multiple
+              options={actividades.filter((option) =>
+                option.titulo.toLowerCase().includes(searchTermActividades.toLowerCase())
+              )}
+              getOptionLabel={(option) => option.titulo}
+              value={actividades.filter((actividad) => newPlan.actividad_id.includes(actividad.id))}
+              onChange={(event, newValue) => {
+                const selectedIds = newValue.map((actividad) => actividad.id);
+                setNewPlan((prevPlan) => ({
+                  ...prevPlan,
+                  actividad_id: selectedIds,
+                }));
+              }}
+              inputValue={searchTermActividades} // Controla el valor del input sin afectar la selección
+              onInputChange={(event, newInputValue) => {
+                setSearchTermActividades(newInputValue); // Mantiene el texto mientras se escribe
+              }}
+              filterOptions={(options, { inputValue }) => {
+                return options.filter((option) =>
+                  option.titulo.toLowerCase().includes(inputValue.toLowerCase())
+                );
+              }}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip key={option.id} label={option.titulo} {...getTagProps({ index })} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Actividades"
+                  placeholder="Selecciona una actividad"
+                />
+              )}
+            />
+
+
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseActForm} color="error" variant='outlined'>
+            Cancelar
+          </Button>
+          <Button type="submit" color="secondary" disabled={isButtonDisabled} onClick={handleAddPlan} variant='contained'>
+            Agregar actividad
+          </Button>
+        </DialogActions>
+
+      </Dialog>
+
+
     </DndProvider>
   );
 };

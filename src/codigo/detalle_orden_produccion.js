@@ -27,6 +27,8 @@ const DetalleOrdenPorduccion = () => {
   const [statusInicial, setStatusInicial] = useState("");
   const [fechaEstimada, setFechaEstimada] = useState("");  // Fecha estimada
   const [tiempoTotal, setTiempoTotal] = useState(0);  // Tiempo acumulado
+  const [serialNum, setSerialNum] = useState("");  // Número de serie
+  const [custom, setCustom] = useState('');
   const navigate = useNavigate();
 
   // Cargar datos de la orden y planes de trabajo
@@ -95,7 +97,9 @@ const DetalleOrdenPorduccion = () => {
       correo_tecnico_asignado: operadorSeleccionado.correo_tecnico_asignado,
       operador_apoyo: operadorApoyoSeleccionado.tecnico_asignado,
       folio_sai: folioSai,
-      status_inicial: statusInicial
+      status_inicial: statusInicial,
+      numero_serie: serialNum,
+      customizacion: custom
     };
 
     console.log("Datos para enviar a la API:", datosOrden);
@@ -112,6 +116,7 @@ const DetalleOrdenPorduccion = () => {
         clasificacion: plan.clasificacion,
         tiempo_estimado: plan.tiempo_estimado,
         finalizado: false, // Siempre falso al crear
+
         
       }));
       const notif = {
@@ -281,6 +286,44 @@ const DetalleOrdenPorduccion = () => {
                 {operador.nombre}
               </MenuItem>
             ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <TextField
+            id="input-serialnum"
+            value={serialNum}
+            onChange={(e) => setSerialNum(e.target.value)}
+            label="Número de serie"
+            variant='outlined'
+          ></TextField>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel id="select-custom-label">Asigna una customización</InputLabel>
+          <Select
+            labelId="select-custom-label"
+            value={custom}
+            onChange={(e) => setCustom(e.target.value)}
+            label="Asignar a un operador de apoyo"
+          >
+            <MenuItem value="Desmontar Press Roller Shop">Desmontar Press Roller Shop</MenuItem>
+            <MenuItem value="Press Roller Works">Press Roller Works</MenuItem>
+            <MenuItem value="Motor spindle 8/9hp HSD Shop">Motor spindle 8/9hp HSD Shop</MenuItem>
+            <MenuItem value="Motor spindle semi-auto 7hp (misil)">Motor spindle semi-auto 7hp (misil)</MenuItem>
+            <MenuItem value="Sistema rotativo de mesa (Router)">Sistema rotativo de mesa (Router)</MenuItem>
+            <MenuItem value="FB X0/X3 bifásica a trifásica">FB X0/X3 bifásica a trifásica</MenuItem>
+            <MenuItem value="Acc. Rotativo Chuck (Creator)">Acc. Rotativo Chuck (Creator)</MenuItem>
+            <MenuItem value="Acc. Rotativo Rodillos (Creator)">Acc. Rotativo Rodillos (Creator)</MenuItem>
+            <MenuItem value="Aumento Creator 100W a 130W">Aumento Creator 100W a 130W</MenuItem>
+            <MenuItem value="Doble Bomba">Doble Bomba</MenuItem>
+            <MenuItem value="Aumento FiberGraver 30 a 50W">Aumento FiberGraver 30 a 50W</MenuItem>
+            <MenuItem value="Incremento tamaño 1 mesa">Incremento tamaño 1 mesa</MenuItem>
+            <MenuItem value="Incremento tamaño doble mesa">Incremento tamaño doble mesa</MenuItem>
+            <MenuItem value="Sistema de lubricacion">Sistema de lubricacion</MenuItem>
+            <MenuItem value="Cambio de modulo">Cambio de modulo</MenuItem>
+            <MenuItem value="Sistema Rodillos Router">Sistema Rodillos Router</MenuItem>
+            <MenuItem value="Cambio de Servos a Steppers">Cambio de Servos a Steppers</MenuItem>
           </Select>
         </FormControl>
 
