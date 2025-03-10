@@ -28,7 +28,7 @@ const DetalleOrdenPorduccion = () => {
   const [fechaEstimada, setFechaEstimada] = useState("");  // Fecha estimada
   const [tiempoTotal, setTiempoTotal] = useState(0);  // Tiempo acumulado
   const [serialNum, setSerialNum] = useState("");  // Número de serie
-  const [custom, setCustom] = useState('');
+  const [custom, setCustom] = useState([]);
   const navigate = useNavigate();
 
   // Cargar datos de la orden y planes de trabajo
@@ -302,6 +302,7 @@ const DetalleOrdenPorduccion = () => {
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel id="select-custom-label">Asigna una customización</InputLabel>
           <Select
+            multiple
             labelId="select-custom-label"
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
