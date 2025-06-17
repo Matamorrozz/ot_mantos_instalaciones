@@ -106,8 +106,9 @@ function PlantelProduccion() {
                     color: theme.palette.mode === 'dark' ? '#fff' : '#000',
                     transition: '0.3s',
                     cursor: 'pointer',
+                    height:'100%',
                     '&:hover': {
-                      backgroundColor: '#1b4f72 ', // Cambia el color de fondo al pasar el cursor
+                      backgroundColor: '#629fc8 ', // Cambia el color de fondo al pasar el cursor
                       transform: 'scale(1.03)', // Agranda ligeramente el card
                       boxShadow: `0px 4px 20px ${theme.palette.primary.main}`,
                       color: 'black'

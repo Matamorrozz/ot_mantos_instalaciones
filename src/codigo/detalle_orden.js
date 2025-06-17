@@ -46,6 +46,16 @@ const DetalleOrdenTrabajo = () => {
     fetchPlanesTrabajo();
   }, [numeroOrden]);
 
+  const handleBorrarOrden = async () => {
+    try {
+      const response = await axios.delete(`https://teknia.app/api/orden_agendada/${numeroOrden}`);
+      console.log("Orden eliminada:", response.data);
+      alert("Orden eliminada correctamente");
+    } catch (error) {
+      console.error("Error al eliminar la orden:", error);
+    }
+  };
+
   // Manejar la asignación de la orden y mostrar datos en consola
   const handleAsignarOrden = async () => {
     const reservaInfo = findById(reservas, reservaSeleccionada);
@@ -199,9 +209,21 @@ const DetalleOrdenTrabajo = () => {
           variant="contained"
           color="primary"
           disabled={isButtonDisabled}
+          sx={{ marginRight: 6 }}
           onClick={handleAsignarOrden}
         >
           Asignar Orden
+        </Button>
+
+        
+
+
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleBorrarOrden}
+        >
+          Eliminar Orden
         </Button>
       </Grid2>
 
