@@ -54,7 +54,7 @@ const DetalleOrdenTrabajo = () => {
     const response = await axios.delete(`https://teknia.app/api3/eliminar_orden_trabajo/${numeroOrden}`);
     alert(response.data.message);
     // Puedes redirigir a la lista de órdenes
-    // navigate('/ordenes');
+    navigate('/ordenes_trabajo');
   } catch (error) {
     console.error("Error al eliminar la orden completa:", error);
     alert("No se pudo eliminar la orden");
