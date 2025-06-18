@@ -46,6 +46,21 @@ const DetalleOrdenTrabajo = () => {
     fetchPlanesTrabajo();
   }, [numeroOrden]);
 
+  const handleEliminarOrdenProduccion = async () => {
+  const confirmar = window.confirm("¿Estás seguro de eliminar la orden completa y todas sus actividades?");
+  if (!confirmar) return;
+
+  try {
+    const response = await axios.delete(`https://teknia.app/api3/eliminar_orden_trabajo/${numeroOrden}`);
+    alert(response.data.message);
+    // Puedes redirigir a la lista de órdenes
+    // navigate('/ordenes');
+  } catch (error) {
+    console.error("Error al eliminar la orden completa:", error);
+    alert("No se pudo eliminar la orden");
+  }
+};
+
   const handleBorrarOrden = async () => {
     try {
       const response = await axios.delete(`https://teknia.app/api/orden_agendada/${numeroOrden}`);
@@ -215,13 +230,11 @@ const DetalleOrdenTrabajo = () => {
           Asignar Orden
         </Button>
 
-        
-
 
         <Button
           variant="contained"
           color="secondary"
-          onClick={handleBorrarOrden}
+          onClick={handleEliminarOrdenProduccion}
         >
           Eliminar Orden
         </Button>
