@@ -6,6 +6,7 @@ import {
   TextField
 } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const DetalleOrdenTrabajo = () => {
   const { numeroOrden } = useParams();  // Número de orden desde la URL
@@ -16,7 +17,9 @@ const DetalleOrdenTrabajo = () => {
   const [titulo, setTitulo] = useState("");  // Título de la orden
   const [prioridad, setPrioridad] = useState("");  // Prioridad
   const [fechaEstimada, setFechaEstimada] = useState("");  // Fecha estimada
-  const [tiempoTotal, setTiempoTotal] = useState(0);  // Tiempo acumulado
+  const [tiempoTotal, setTiempoTotal] = useState(0);
+  
+  const navigate = useNavigate();// Tiempo acumulado
 
   // Cargar datos de la orden y planes de trabajo
   useEffect(() => {
